@@ -1,29 +1,31 @@
-import RPi.GPIO as GPIO #import RPi.GPIO module
-from time import sleep
-
-import hal_led as led
+import time
+from hal import hal_led as led
+from hal import hal_input_switch as sw
 
 def main():
     led.init()
+    sw.init()
 
-    
+    while True:
+        switch_value = sw.read_slide_switch()
 
-def init():
-    GPIO.setmode(GPIO.BCM) #choose BCM mode
-    GPIO.setwarnings(False)
-    GPIO.setup(22,GPIO.IN) #set GPIO 22 as input
+        if switch_value == 0:
+            led.set_output(0, 1)
+            time.sleep(0.1)
+            led.set_output(0, 0)
+            time.sleep(0.1)
 
+        else:
+            start = time.time()
 
-def read_slide_switch():
-    ret = 0
+            while time.time() - start < 5:
+                led.set_output(0, 1)
+                time.sleep(0.05)
+                led.set_output(0, 0)
+                time.sleep(0.05)
 
-    if GPIO.input(22):
-        led.set_output(0)
-        sleep(0.1)
-        led.set_output(1)
-        sleep(0.1)
-        ret = 1
+            led.set_output(0, 0)
+            time.sleep(0.1)
 
-    return ret
-
-
+if __name__ == "__main__":
+    main()
